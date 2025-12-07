@@ -1,0 +1,61 @@
+name: aqua_mate
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.9.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Cupertino icons
+  cupertino_icons: ^1.0.8
+
+  # State Management
+  provider: ^6.0.0 # Use the latest version
+
+  flutter_animate: ^4.5.0
+
+  # Image handling and Storage
+  image_picker: ^1.0.4 # Use the latest stable version
+
+  # 🔑 CRITICAL ADDITION for UserSession.dart persistence
+  shared_preferences: ^2.2.2 # Add or update to a stable version
+
+  # HTTP package for backend requests
+  http: ^1.2.0
+
+  # Date/Time Formatting
+  intl: ^0.18.1
+
+  # Local Notifications
+  flutter_local_notifications: ^17.0.0 # or latest version
+  timezone: ^0.9.3 # or latest version
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+
+  # Assets
+  assets:
+    - assets/images/
+    - assets/images/library/user.png
+    - assets/images/library/user01.png
+    - assets/images/library/freshwater.png
+    - assets/images/library/saltwater.png
+    - assets/images/library/aquascape.png
+    - assets/images/library/fresh_fish/guppy-blue.webp
+    - assets/images/library/fresh_fish/blue_angelfish.png
+    - assets/images/library/fresh_fish/golden-fish-black.jpg
+    - assets/images/library/fresh_fish/betta.jpg
+    - assets/images/library/salt_fish/clown-fish.webp
+    - assets/images/library/salt_fish/yellow_tang.jpeg
+    - assets/images/library/salt_fish/mandarin_dragonet.jpg
+    - assets/images/library/salt_fish/blue_tang.jpeg
