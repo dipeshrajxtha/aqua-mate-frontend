@@ -62,9 +62,6 @@ class _CompatibilityCheckerPageState extends State<CompatibilityCheckerPage> {
     };
   }
 
-  // ----------------------------------------------------------------
-  // BUILD UI
-  // ----------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
     final result = _checkCompatibility();
@@ -77,15 +74,15 @@ class _CompatibilityCheckerPageState extends State<CompatibilityCheckerPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
+            _buildHeader(), // UPDATED HEADER
 
             const SizedBox(height: 30),
-            _buildDropdown("Fish Species A", fishA,
+            _buildDropdown("Select Fish", fishA,
                     (v) => setState(() => fishA = v)),
 
             _buildCenterSwapIcon(),
 
-            _buildDropdown("Fish Species B", fishB,
+            _buildDropdown("Select Fish", fishB,
                     (v) => setState(() => fishB = v)),
 
             const SizedBox(height: 40),
@@ -111,8 +108,7 @@ class _CompatibilityCheckerPageState extends State<CompatibilityCheckerPage> {
     return PreferredSize(
       preferredSize: const Size.fromHeight(70),
       child: ClipRRect(
-        borderRadius:
-        const BorderRadius.vertical(bottom: Radius.circular(25)),
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(25)),
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
           child: AppBar(
@@ -139,31 +135,47 @@ class _CompatibilityCheckerPageState extends State<CompatibilityCheckerPage> {
   }
 
   // ----------------------------------------------------------------
-  // HEADER
+  // UPDATED HEADER - EXACTLY LIKE SCREENSHOT
   // ----------------------------------------------------------------
   Widget _buildHeader() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Species Checker",
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.w900,
-            color: Colors.grey.shade800,
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          "Check compatibility between different fish species.",
-          style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
-        ),
-      ],
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Aquarium Compatibility",
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
+              color: Colors.grey.shade900,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            "Check if fish can live together",
+            style: TextStyle(
+              fontSize: 15,
+              color: Colors.grey.shade600,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  // ----------------------------------------------------------------
-  // DROPDOWN
   // ----------------------------------------------------------------
   Widget _buildDropdown(
       String label, String? value, Function(String?) onChanged) {
@@ -245,8 +257,6 @@ class _CompatibilityCheckerPageState extends State<CompatibilityCheckerPage> {
   }
 
   // ----------------------------------------------------------------
-  // SWAP ICON
-  // ----------------------------------------------------------------
   Widget _buildCenterSwapIcon() {
     return Center(
       child: Container(
@@ -256,14 +266,12 @@ class _CompatibilityCheckerPageState extends State<CompatibilityCheckerPage> {
           shape: BoxShape.circle,
           color: _primaryAqua.withOpacity(0.12),
         ),
-        child: const Icon(Icons.sync_alt_rounded,
-            color: _primaryAqua, size: 28),
+        child:
+        const Icon(Icons.sync_alt_rounded, color: _primaryAqua, size: 28),
       ),
     );
   }
 
-  // ----------------------------------------------------------------
-  // SECTION TITLE
   // ----------------------------------------------------------------
   Widget _buildSectionTitle(String title) {
     return Text(
@@ -276,8 +284,6 @@ class _CompatibilityCheckerPageState extends State<CompatibilityCheckerPage> {
     );
   }
 
-  // ----------------------------------------------------------------
-  // GLASSMORPHIC RESULT CARD
   // ----------------------------------------------------------------
   Widget _buildResultCard(Map<String, dynamic> result) {
     bool? comp = result["isCompatible"];
@@ -320,7 +326,6 @@ class _CompatibilityCheckerPageState extends State<CompatibilityCheckerPage> {
               ),
             ],
           ),
-
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -329,7 +334,7 @@ class _CompatibilityCheckerPageState extends State<CompatibilityCheckerPage> {
               Expanded(
                 child: Text(
                   result["text"],
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
                     height: 1.4,

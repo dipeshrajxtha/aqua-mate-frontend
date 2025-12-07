@@ -2,9 +2,37 @@ import 'package:flutter/material.dart';
 import 'package:aqua_mate/routes/app_routes.dart';
 
 class SharedBottomNav extends StatelessWidget {
-  final int currentIndex; // tells which tab is active
+  final int currentIndex;
 
   const SharedBottomNav({super.key, required this.currentIndex});
+
+  void _navigate(BuildContext context, int index) {
+    if (index == currentIndex) return;
+
+    String route = AppRoutes.dashboard;
+
+    switch (index) {
+      case 0:
+        route = AppRoutes.maintenance;
+        break;
+      case 1:
+        route = AppRoutes.dashboard;
+        break;
+      case 2:
+        route = AppRoutes.library;
+        break;
+      case 3:
+        route = AppRoutes.settings;
+        break;
+    }
+
+    // FIXED NAVIGATION — clears stacked pages
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      route,
+          (route) => false,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,10 +46,10 @@ class SharedBottomNav extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withOpacity(0.08),
             spreadRadius: 0,
-            blurRadius: 10,
-            offset: const Offset(0, -5),
+            blurRadius: 12,
+            offset: const Offset(0, -4),
           ),
         ],
       ),
@@ -36,26 +64,9 @@ class SharedBottomNav extends StatelessWidget {
           currentIndex: currentIndex,
           selectedItemColor: const Color(0xFF4ade80),
           unselectedItemColor: Colors.grey[500],
-          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500),
+          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
           unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500),
-          onTap: (index) {
-            if (index == currentIndex) return; // avoid reload
-
-            switch (index) {
-              case 0:
-                Navigator.pushNamed(context, AppRoutes.maintenance);
-                break;
-              case 1:
-                Navigator.pushNamed(context, AppRoutes.dashboard);
-                break;
-              case 2:
-                Navigator.pushNamed(context, AppRoutes.library);
-                break;
-              case 3:
-                Navigator.pushNamed(context, AppRoutes.settings);
-                break;
-            }
-          },
+          onTap: (index) => _navigate(context, index),
           items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.check_box_outlined),

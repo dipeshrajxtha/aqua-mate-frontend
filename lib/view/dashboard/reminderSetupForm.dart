@@ -5,12 +5,10 @@ import 'package:provider/provider.dart';
 import '../../controller/reminder_controller.dart';
 import '../../model/reminder_model.dart';
 
-// --- Custom Color Palette ---
+// --- Custom Color Palette (kept but adjusted to allow dark mode) ---
 class AppColors {
   static const Color aquaMain = Color(0xFF4ade80);
   static const Color primaryBlue = Color(0xFF49AEB1);
-  static const Color primaryLight = Color(0xFFE0F7FA);
-  static const Color textDark = Color(0xFF1F2937);
   static const Color errorRed = Color(0xFFF87171);
 }
 
@@ -50,6 +48,7 @@ class _ReminderSetupFormState extends State<ReminderSetupForm> {
   }
 
   Future<void> _selectDate(BuildContext context) async {
+    final theme = Theme.of(context).colorScheme;
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate ?? DateTime.now().add(const Duration(days: 1)),
@@ -57,61 +56,49 @@ class _ReminderSetupFormState extends State<ReminderSetupForm> {
       lastDate: DateTime(2101),
       builder: (context, child) {
         return Theme(
-          data: ThemeData.light().copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: AppColors.primaryBlue,
-              onPrimary: Colors.white,
-              onSurface: AppColors.textDark,
-            ),
+          data: Theme.of(context).copyWith(
+            colorScheme: theme.copyWith(primary: AppColors.primaryBlue),
           ),
           child: child!,
         );
       },
     );
-    if (picked != null) {
-      setState(() {
-        _selectedDate = picked;
-      });
-    }
+    if (picked != null) setState(() => _selectedDate = picked);
   }
 
   Future<void> _selectTime(BuildContext context) async {
+    final theme = Theme.of(context).colorScheme;
     final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: _selectedTime ?? TimeOfDay.now(),
       builder: (context, child) {
         return Theme(
-          data: ThemeData.light().copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: AppColors.primaryBlue,
-              onPrimary: Colors.white,
-              onSurface: AppColors.textDark,
-            ),
+          data: Theme.of(context).copyWith(
+            colorScheme: theme.copyWith(primary: AppColors.primaryBlue),
           ),
           child: child!,
         );
       },
     );
-    if (picked != null) {
-      setState(() {
-        _selectedTime = picked;
-      });
-    }
+    if (picked != null) setState(() => _selectedTime = picked);
   }
 
   void _saveReminder(BuildContext context) async {
     final tankName = _tankNameController.text.trim();
-    if (_selectedTask == null || _selectedDate == null || _selectedTime == null || tankName.isEmpty) {
+    if (_selectedTask == null ||
+        _selectedDate == null ||
+        _selectedTime == null ||
+        tankName.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Please complete all fields.'),
-          backgroundColor: AppColors.errorRed,
+          backgroundColor: Colors.redAccent,
         ),
       );
       return;
     }
 
-    final DateTime finalScheduledDate = DateTime(
+    final scheduledDate = DateTime(
       _selectedDate!.year,
       _selectedDate!.month,
       _selectedDate!.day,
@@ -137,16 +124,17 @@ class _ReminderSetupFormState extends State<ReminderSetupForm> {
         return;
     }
 
-    final result = await Provider.of<ReminderController>(context, listen: false).addReminder(
+    final result = await Provider.of<ReminderController>(context, listen: false)
+        .addReminder(
       tankName: tankName,
       type: type,
-      scheduledDate: finalScheduledDate,
+      scheduledDate: scheduledDate,
     );
 
     if (result == "Success") {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${_selectedTask} set for $tankName!'),
+          content: Text('$_selectedTask set for $tankName!'),
           backgroundColor: AppColors.aquaMain,
         ),
       );
@@ -154,7 +142,7 @@ class _ReminderSetupFormState extends State<ReminderSetupForm> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error saving reminder: $result'),
+          content: Text('Error: $result'),
           backgroundColor: AppColors.errorRed,
         ),
       );
@@ -163,15 +151,18 @@ class _ReminderSetupFormState extends State<ReminderSetupForm> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: AppColors.primaryLight.withOpacity(0.3),
+      backgroundColor: cs.background,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Schedule Maintenance',
-          style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.textDark),
+          style: TextStyle(
+              fontWeight: FontWeight.w800, color: cs.onSurface),
         ),
-        backgroundColor: Colors.white,
-        iconTheme: const IconThemeData(color: AppColors.textDark),
+        backgroundColor: cs.surface,
+        iconTheme: IconThemeData(color: cs.onSurface),
         elevation: 1,
       ),
       body: SingleChildScrollView(
@@ -179,51 +170,49 @@ class _ReminderSetupFormState extends State<ReminderSetupForm> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Tank Name', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: AppColors.textDark)),
-            const SizedBox(height: 8),
+            _sectionTitle(context, 'Tank Name'),
             _buildInputContainer(
-              isPicker: false,
+              context: context,
               child: TextField(
                 controller: _tankNameController,
                 decoration: InputDecoration(
                   hintText: 'e.g., Main 55 Gallon Reef',
-                  hintStyle: TextStyle(color: Colors.grey[400]),
+                  hintStyle:
+                  TextStyle(color: cs.onSurface.withOpacity(0.4)),
                   border: InputBorder.none,
-                  contentPadding: EdgeInsets.zero,
                 ),
-                style: const TextStyle(fontWeight: FontWeight.w500),
+                style: TextStyle(
+                    color: cs.onSurface, fontWeight: FontWeight.w500),
               ),
             ),
             const SizedBox(height: 30),
 
-            const Text('Select Task Type', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: AppColors.textDark)),
-            const SizedBox(height: 8),
+            _sectionTitle(context, 'Select Task Type'),
             Wrap(
               spacing: 12.0,
               runSpacing: 12.0,
-              children: _tasks.map((task) => _buildTaskChip(task)).toList(),
+              children: _tasks.map((task) => _buildTaskChip(context, task)).toList(),
             ),
             const SizedBox(height: 30),
 
-            const Text('Schedule Date & Time', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: AppColors.textDark)),
-            const SizedBox(height: 8),
-
+            _sectionTitle(context, 'Schedule Date & Time'),
             GestureDetector(
               onTap: () => _selectDate(context),
               child: _buildInputContainer(
+                context: context,
                 child: Row(
                   children: [
-                    const Icon(Icons.calendar_today, size: 24, color: AppColors.primaryBlue),
+                    Icon(Icons.calendar_today,
+                        size: 24, color: AppColors.primaryBlue),
                     const SizedBox(width: 12),
                     Text(
                       _selectedDate == null
                           ? 'Select Date'
                           : 'Date: ${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.textDark,
-                      ),
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: cs.onSurface),
                     ),
                   ],
                 ),
@@ -234,25 +223,25 @@ class _ReminderSetupFormState extends State<ReminderSetupForm> {
             GestureDetector(
               onTap: () => _selectTime(context),
               child: _buildInputContainer(
+                context: context,
                 child: Row(
                   children: [
-                    const Icon(Icons.access_time_filled, size: 24, color: AppColors.primaryBlue),
+                    Icon(Icons.access_time_filled,
+                        size: 24, color: AppColors.primaryBlue),
                     const SizedBox(width: 12),
                     Text(
                       _selectedTime == null
                           ? 'Select Time'
                           : 'Time: ${_selectedTime!.format(context)}',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.textDark,
-                      ),
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: cs.onSurface),
                     ),
                   ],
                 ),
               ),
             ),
-
             const SizedBox(height: 40),
 
             Row(
@@ -261,13 +250,15 @@ class _ReminderSetupFormState extends State<ReminderSetupForm> {
                   child: ElevatedButton(
                     onPressed: () => Navigator.pop(context),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.errorRed.withOpacity(0.1),
-                      foregroundColor: AppColors.errorRed,
+                      backgroundColor: cs.error.withOpacity(0.1),
+                      foregroundColor: cs.error,
                       padding: const EdgeInsets.symmetric(vertical: 18),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15)),
                     ),
-                    child: const Text('Cancel', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    child: const Text('Cancel',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
                   ),
                 ),
                 const SizedBox(width: 15),
@@ -278,10 +269,12 @@ class _ReminderSetupFormState extends State<ReminderSetupForm> {
                       backgroundColor: AppColors.aquaMain,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 18),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                      elevation: 8,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15)),
                     ),
-                    child: const Text('Set Reminder', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    child: const Text('Set Reminder',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
                   ),
                 ),
               ],
@@ -292,18 +285,32 @@ class _ReminderSetupFormState extends State<ReminderSetupForm> {
     );
   }
 
-  // Widget builder for the common input/picker style
-  Widget _buildInputContainer({required Widget child, bool isPicker = true}) {
+  // ---- Helpers -----
+
+  Widget _sectionTitle(BuildContext context, String text) {
+    return Text(
+      text,
+      style: TextStyle(
+        fontWeight: FontWeight.w600,
+        fontSize: 16,
+        color: Theme.of(context).colorScheme.onSurface,
+      ),
+    );
+  }
+
+  Widget _buildInputContainer({
+    required BuildContext context,
+    required Widget child,
+  }) {
+    final cs = Theme.of(context).colorScheme;
     return Card(
-      elevation: isPicker ? 4 : 2,
+      elevation: 3,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      margin: EdgeInsets.zero,
       child: Container(
         height: 60,
-        width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 15),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: cs.surface,
           borderRadius: BorderRadius.circular(15),
         ),
         alignment: Alignment.centerLeft,
@@ -312,26 +319,25 @@ class _ReminderSetupFormState extends State<ReminderSetupForm> {
     );
   }
 
-  // Widget builder for the Task Chips (Buttons)
-  Widget _buildTaskChip(String task) {
+  Widget _buildTaskChip(BuildContext context, String task) {
     bool isSelected = _selectedTask == task;
+    final cs = Theme.of(context).colorScheme;
+
     return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedTask = task;
-        });
-      },
+      onTap: () => setState(() => _selectedTask = task),
       child: Chip(
         label: Text(task),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-        backgroundColor: isSelected ? AppColors.primaryBlue.withOpacity(0.9) : Colors.grey[200],
-        side: isSelected ? BorderSide(color: AppColors.primaryBlue, width: 1.5) : BorderSide.none,
+        backgroundColor:
+        isSelected ? AppColors.primaryBlue : cs.surfaceVariant,
+        side: BorderSide(
+          color: isSelected ? AppColors.primaryBlue : Colors.transparent,
+        ),
         labelStyle: TextStyle(
-          color: isSelected ? Colors.white : AppColors.textDark,
-          fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+          color: isSelected ? Colors.white : cs.onSurface,
+          fontWeight: FontWeight.w600,
           fontSize: 16,
         ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
     );
   }
